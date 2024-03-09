@@ -25,7 +25,6 @@ namespace Stormgate_Op_Db
             var opponentDB = new OpponentDB();
             opponentDB.LoadList();
             
-            //yowhuddupitsjakepaulherewithanotheroneodfmycrazyp
             //screenReader.Save(LoadingScreenSpace); //TESTING
 
             while (true)
