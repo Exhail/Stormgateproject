@@ -1,0 +1,1 @@
+[{"_playerID":"AIBOT","_pastCheeseCount":0,"_pastMacroCount":0,"_pastGameCount":0},{"_playerID":"AIBOT","_pastCheeseCount":0,"_pastMacroCount":1,"_pastGameCount":0},{"_playerID":"aibot","_pastCheeseCount":0,"_pastMacroCount":0,"_pastGameCount":0},{"_playerID":"aibot","_pastCheeseCount":0,"_pastMacroCount":0,"_pastGameCount":0}]
