@@ -5,49 +5,82 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Stormgate_Op_Db
 {
     public class Opponent
     {
+        private string _playerID;
 
-        public string _playerID;
-        public int _pastCheeseCount = 0;
-        public int _pastMacroCount = 0;
-        public int _pastGameCount;
+        //All arrays: [0]Vangaurd, [1]Infernal, [2]Anime Cat Girls
+        private int[] _totalGames;
+        private int[] _winRate;
+        private Dictionary<string, int> _infPlaystyle;
+        private Dictionary<string, int> _vanPlaystyle;
+        private Dictionary<string, int> _acgPlaystyle;
 
+        
         public Opponent(string playerID)
         {
             _playerID = playerID;
-            _pastGameCount = _pastMacroCount + _pastCheeseCount;
-            _pastCheeseCount = 0;
-            _pastMacroCount = 0;
+
+            _totalGames = new int[3];
+            _winRate = new int[3];
+
+            _infPlaystyle ["Cheesey"] = 0;
+            _infPlaystyle ["Aggresive"] = 0;
+            _infPlaystyle ["Defensive"] = 0;
+
+            _vanPlaystyle["Cheesey"] = 0;
+            _vanPlaystyle["Aggresive"] = 0;
+            _vanPlaystyle["Defensive"] = 0;
+
+            _acgPlaystyle["Cheesey"] = 0;
+            _acgPlaystyle["Aggresive"] = 0;
+            _acgPlaystyle["Defensive"] = 0;
+            _acgPlaystyle["Nya!!!"] = 99;
         }
 
 
-        public string QPlayerType()
+        public string QPlayerType(string race)
         {
-            string playerType;
-            if (_pastCheeseCount != _pastMacroCount)
+            switch (race)
             {
-                playerType = (_pastCheeseCount > _pastMacroCount ? "Cheesey" : "Macro");
+                case "van":
+                    return _vanPlaystyle.Max().ToString();
+
+                case "inf":
+                    return _infPlaystyle.Max().ToString();
+
+                case "acg":
+                    return _acgPlaystyle.Max().ToString();
+
+                default:
+                    return null;
             }
-            else playerType = "Mixed";
-            return playerType;
         }
 
-        public void inputPlayerstyle(string playstyle, Opponent Opponent)
+        public void inputPlayerstyle(string inputPlaystyle, Opponent Opponent)
         {
-            if (string.IsNullOrEmpty(playstyle)) throw new ArgumentNullException(nameof(playstyle));
-
-            if (playstyle.ToLower() == "cheese")
+            switch (inputPlaystyle.ToLower()) 
             {
-                Opponent._pastCheeseCount++;
-            }
+                case "cheesey":
+                    Opponent._infPlaystyle["Cheesey"]++;
+                    break;
 
-            if (playstyle.ToLower() == "macro")
-            {
-                Opponent._pastMacroCount++;
+                case "aggresive":
+                    Opponent._infPlaystyle["Aggresive"]++;
+                    break;
+
+                case "defensive":
+                    Opponent._infPlaystyle["Defensive"]++;
+                    break;
+
+                default:
+                    Console.WriteLine("Non-valid playstyle was entered");
+                    break;
             }
         }
     }

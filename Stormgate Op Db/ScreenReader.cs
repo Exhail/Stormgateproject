@@ -44,6 +44,30 @@ namespace Stormgate_Op_Db
             
         }
 
+        public string ReadCaseSensitive(Rectangle screenSpace)
+        {
+            _imgCache = new Bitmap(screenSpace.Width, screenSpace.Height);
+
+            using (Graphics graphics = Graphics.FromImage(_imgCache))                                       //create a graphics object from the bitmap
+            {
+                graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);               //Capture the specified area of the screen
+
+            }
+
+            using (var TessEngine = new TesseractEngine(_tessData, "Eng", EngineMode.Default))              //process bitmap into text
+            {
+                Page page = TessEngine.Process(_imgCache);
+                string output = page.GetText().Trim();
+
+                if (output.Length < 1)
+                {
+                    return null;
+                }
+
+                return output;
+            }
+
+        }
         public void Save(Rectangle screenSpace)
         {
             _imgCache = new Bitmap(screenSpace.Width, screenSpace.Height);
