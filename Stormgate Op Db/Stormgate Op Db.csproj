@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="OpponentDB.cs" />
     <Compile Include="Opponent.cs" />
+    <Compile Include="ScreenCapture.cs" />
     <Compile Include="ScreenReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

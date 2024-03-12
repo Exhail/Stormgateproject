@@ -94,5 +94,11 @@ namespace Stormgate_Op_Db
             Console.WriteLine("Program done");
             Console.ReadLine();
         }
+
+
+        public string RaceCheck()
+        {
+            //Impliment ScreenCapture Logic and stuff
+        }
     }
 }

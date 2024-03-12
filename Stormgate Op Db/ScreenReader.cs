@@ -15,8 +15,8 @@ namespace Stormgate_Op_Db
     public class ScreenReader
     {
         private Bitmap _imgCache;
-        private readonly string _tessData = "C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Text Recognition Software\\tesseract-5.3.4\\tessdata";
-        private readonly string _testSave = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Projects\\Stormgate Op Db\\Cache\\screenshot.png";
+        private readonly string _tessDataPath = "C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Text Recognition Software\\tesseract-5.3.4\\tessdata";
+        private readonly string _testSavePath = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Projects\\Stormgate Op Db\\Cache\\TestSave.png";
 
 
         public string Read(Rectangle screenSpace)
@@ -29,7 +29,7 @@ namespace Stormgate_Op_Db
 
             }
 
-            using (var TessEngine = new TesseractEngine(_tessData, "Eng", EngineMode.Default))              //process bitmap into text
+            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default))              //process bitmap into text
             {
                 Page page = TessEngine.Process(_imgCache);
                 string output = page.GetText().Trim().ToLower();
@@ -54,7 +54,7 @@ namespace Stormgate_Op_Db
 
             }
 
-            using (var TessEngine = new TesseractEngine(_tessData, "Eng", EngineMode.Default))              //process bitmap into text
+            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default))              //process bitmap into text
             {
                 Page page = TessEngine.Process(_imgCache);
                 string output = page.GetText().Trim();
@@ -79,7 +79,7 @@ namespace Stormgate_Op_Db
                 graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);
             }
             //Save to file
-            _imgCache.Save(_testSave, System.Drawing.Imaging.ImageFormat.Png);
+            _imgCache.Save(_testSavePath, System.Drawing.Imaging.ImageFormat.Png);
         }
     }
 

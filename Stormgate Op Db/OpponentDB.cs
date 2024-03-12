@@ -13,7 +13,7 @@ namespace Stormgate_Op_Db
     public class OpponentDB
     {
         private static List<Opponent> _opponentList;
-        private string _textCachePath = @"C:\Users\ellio\Desktop\C# Learning Fun times\Projects\Stormgate Op Db\Cache\Text_Cache.txt";
+        private string _textCachePath = @"C:\Users\ellio\Desktop\C# Learning Fun times\Projects\Stormgate Op Db\Cache\Opp_DB.txt";
 
         public void AddOpponent(Opponent opponent)
         {
