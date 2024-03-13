@@ -12,7 +12,7 @@ namespace Stormgate_Op_Db
 {
     public class Opponent
     {
-        private string _playerID;
+        public string _playerID;
 
         //All arrays: [0]Vangaurd, [1]Infernal, [2]Anime Cat Girls
         private int[] _totalGames;

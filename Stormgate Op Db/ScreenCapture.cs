@@ -13,29 +13,25 @@ namespace Stormgate_Op_Db
     {
         private Bitmap _capturedImg;
         private readonly string _capturedImgPath = @"C:\Users\ellio\Desktop\C# Learning Fun times\Projects\Stormgate Op Db\Cache\ScreenCapture\_capturedImg.png";
+       
 
-        public void CaptureImg(Rectangle screenSpace)
+        public void SaveImg(Rectangle screenSpace)
         {
+            _capturedImg = new Bitmap(screenSpace.Width, screenSpace.Height);
+
             try
             {
                 using (Graphics graphics = Graphics.FromImage(_capturedImg))
                 {
                     graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);
                 }
+                _capturedImg.Save(_capturedImgPath, System.Drawing.Imaging.ImageFormat.Png);
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error Capturing image: ", ex.Message);
             }
-        }
-
-        public void SaveCurrentImg()
-        {
-            if (_capturedImg != null)
-            {
-                _capturedImg.Save(_capturedImgPath);
-            }
-            else throw new Exception("No Image Currently Stored in Object!");
         }
 
 
