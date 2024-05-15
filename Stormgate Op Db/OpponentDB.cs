@@ -29,11 +29,11 @@ namespace Stormgate_Op_Db
             File.WriteAllText(_textCachePath, updatedJsonPackage);
         }
 
-        public bool HistoryCheck(string playerID)
+        public bool QConfirmHistory(string playerID)
         {
             foreach (Opponent player in _opponentList)
             {
-                if (playerID == player._playerID)
+                if (playerID == player._OpponentNick)
                 {
                     return true;
                 }
@@ -45,13 +45,12 @@ namespace Stormgate_Op_Db
         {
             foreach (var player in _opponentList)
             {
-                if (playerID == player._playerID)
+                if (playerID == player._OpponentNick)
                 {
                     return player;
                 }
             }
-            Console.WriteLine(@"Player: " + playerID + "not found"); //Change to throw an Exception?
-            return null;
+            throw new Exception("Failed to find Opponent.");
         }
 
         public List<Opponent> LoadList()

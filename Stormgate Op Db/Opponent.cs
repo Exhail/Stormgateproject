@@ -12,70 +12,139 @@ namespace Stormgate_Op_Db
 {
     public class Opponent
     {
-        public string _playerID;
+        public string _OpponentNick;
 
-        //All arrays: [0]Vangaurd, [1]Infernal, [2]Anime Cat Girls
-        private int[] _totalGames;
-        private int[] _winRate;
-        private Dictionary<string, int> _infPlaystyle;
-        private Dictionary<string, int> _vanPlaystyle;
-        private Dictionary<string, int> _acgPlaystyle;
+        private Dictionary<string, int> _infBehaviour;
+        private Dictionary<string, int> _vanBehaviour;
+        private Dictionary<string, int> _acgBehaviour;
 
-        
-        public Opponent(string playerID)
+        private int _infGameCount;
+        private int _infWinCount;
+        private int _infWinrate;
+
+        private int _vanGameCount;
+        private int _vanWinCount;
+        private int _vanWinrate;
+
+        private int _acgGameCount;
+        private int _acgWinCount;
+        private int _acgWinrate;
+
+
+        public Opponent(string opponentNick)
         {
-            _playerID = playerID;
+            _OpponentNick = opponentNick;
 
-            _totalGames = new int[3];
-            _winRate = new int[3];
+            _infBehaviour = new Dictionary<string, int>();
+            _vanBehaviour = new Dictionary<string, int>();
+            _acgBehaviour = new Dictionary<string, int>();
 
-            _infPlaystyle ["Cheesey"] = 0;
-            _infPlaystyle ["Aggresive"] = 0;
-            _infPlaystyle ["Defensive"] = 0;
 
-            _vanPlaystyle["Cheesey"] = 0;
-            _vanPlaystyle["Aggresive"] = 0;
-            _vanPlaystyle["Defensive"] = 0;
 
-            _acgPlaystyle["Cheesey"] = 0;
-            _acgPlaystyle["Aggresive"] = 0;
-            _acgPlaystyle["Defensive"] = 0;
-            _acgPlaystyle["Nya!!!"] = 99;
+            _infGameCount = 0;
+            _infWinCount = 0;
+            if (_infGameCount > 0)
+            {
+                _infWinrate = _infGameCount / _infWinCount;
+            }
+            else _infGameCount = 0;
+
+            _vanGameCount = 0;
+            _vanWinCount = 0;
+            if (_vanGameCount > 0)
+            {
+                _vanWinrate = _vanGameCount / _vanWinCount;
+            }
+            else _vanGameCount = 0;
+
+            _acgGameCount = 0;
+            _acgWinCount = 0;
+            if (_acgGameCount > 0)
+            {
+                _acgWinrate = _acgGameCount / _acgWinCount;
+            }
+            else _acgGameCount = 0;
+
+            //Infernal Behaviour
+            _infBehaviour["Cheesey"] = 0;
+            _infBehaviour["Aggresive"] = 0;
+            _infBehaviour["Defensive"] = 0;
+            
+            //Vangard Behaviour
+            _vanBehaviour["Cheesey"] = 0;
+            _vanBehaviour["Aggresive"] = 0;
+            _vanBehaviour["Defensive"] = 0;
+
+            //3rd Race Behaviour
+            _acgBehaviour["Cheesey"] = 0;
+            _acgBehaviour["Aggresive"] = 0;
+            _acgBehaviour["Defensive"] = 0;
+            _acgBehaviour["Nya!!!"] = 99;
         }
 
 
-        public string QPlayerType(string race)
+        public Dictionary<string, int> BehaviourHistory(string race)
         {
             switch (race)
             {
                 case "van":
-                    return _vanPlaystyle.Max().ToString();
+                    return _vanBehaviour;
 
                 case "inf":
-                    return _infPlaystyle.Max().ToString();
+                    return _infBehaviour;
 
                 case "acg":
-                    return _acgPlaystyle.Max().ToString();
+                    return _acgBehaviour;
 
                 default:
-                    return null;
+                    throw new Exception("Incorrect Race Entered to BehaviourHistory Method");
             }
         }
 
-        public void inputPlayerstyle(string inputPlaystyle, Opponent Opponent)
+        public int[] Statistics(string race)
+        {
+            //Game Count, Win Count, Win Ratio.
+            int[] GC_WC_WR = new int[3];
+
+            switch (race)
+            {
+                case "van":
+                    GC_WC_WR[0] = _vanGameCount;
+                    GC_WC_WR[1] = _vanWinCount;
+                    GC_WC_WR[2] = _vanWinrate;
+                    return GC_WC_WR;
+
+                case "inf":
+                    GC_WC_WR[0] = _infGameCount;
+                    GC_WC_WR[1] = _infWinCount;
+                    GC_WC_WR[2] = _infWinrate;
+                    return GC_WC_WR;
+
+                case "acg":
+                    GC_WC_WR[0] = _acgGameCount;
+                    GC_WC_WR[1] = _acgWinCount;
+                    GC_WC_WR[2] = _acgWinrate;
+                    return GC_WC_WR;
+
+                default:
+                    throw new Exception("Incorrect Race Entered to Statistics Method");
+            }
+        }
+
+        public void InputPlayerstyle(string inputPlaystyle, string oppRace)
         {
             switch (inputPlaystyle.ToLower()) 
             {
                 case "cheesey":
-                    Opponent._infPlaystyle["Cheesey"]++;
+                    this._infBehaviour["Cheesey"]++;
                     break;
 
                 case "aggresive":
-                    Opponent._infPlaystyle["Aggresive"]++;
+                    this._infBehaviour["Aggresive"]++;
                     break;
 
                 case "defensive":
-                    Opponent._infPlaystyle["Defensive"]++;
+                    this._infBehaviour["Defensive"]++;
                     break;
 
                 default:

@@ -1,0 +1,1 @@
+[{"_OpponentNick":null},{"_OpponentNick":"AIBOT"},{"_OpponentNick":"AIBOT"},{"_OpponentNick":"AIBOT"},{"_OpponentNick":"AIBOT"}]

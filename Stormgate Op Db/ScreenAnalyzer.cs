@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,29 +10,34 @@ using System.Drawing.Imaging;
 using Tesseract;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Stormgate_Op_Db
 {
-    internal class ScreenAnalyzer
+    class ScreenAnalyzer
     {
-        private Bitmap _capturedImg;
-        private readonly string _capturedImgPath = @"C:\Users\ellio\Desktop\C# Learning Fun times\Projects\Stormgate Op Db\Cache\ScreenCapture\_capturedImg.png";
-        private Bitmap _imgCache;
-        private readonly string _tessDataPath = "C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Text Recognition Software\\tesseract-5.3.4\\tessdata";
-        private readonly string _testSavePath = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Projects\\Stormgate Op Db\\Cache\\TestSave.png";
+        private Bitmap _textExtractionImage;
 
+        private readonly string _tessDataPath = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Text Recognition Software\\tesseract-5.3.4\\tessdata";
+
+        private readonly string _textImgTestSavePath2 = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Projects\\Stormgate Op Db\\Cache\\TestSave2.png";
+        private readonly string _textImgTestSavePath = @"C:\\Users\\ellio\\Desktop\\C# Learning Fun times\\Projects\\Stormgate Op Db\\Cache\\TestSave.png";
+        private readonly string _comparisonImagePath = @"C:\Users\ellio\Desktop\C# Learning Fun times\Projects\Stormgate Op Db\Cache\ScreenCapture\comparisonImage.png";
 
         public void SaveImg(Rectangle screenSpace)
         {
-            _capturedImg = new Bitmap(screenSpace.Width, screenSpace.Height);
+            var comparisonImage = new Bitmap(screenSpace.Width, screenSpace.Height);
 
             try
             {
-                using (Graphics graphics = Graphics.FromImage(_capturedImg))
+                using (Graphics graphics = Graphics.FromImage(comparisonImage))
                 {
                     graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);
                 }
-                _capturedImg.Save(_capturedImgPath, System.Drawing.Imaging.ImageFormat.Png);
+
+
+                comparisonImage.Save(_comparisonImagePath, System.Drawing.Imaging.ImageFormat.Png);
 
             }
             catch (Exception ex)
@@ -40,70 +46,84 @@ namespace Stormgate_Op_Db
             }
         }
 
-        public void Save(Rectangle screenSpace)
+        public bool QImgMatch(Rectangle screenSpace, string reffImgPath)
         {
-            _imgCache = new Bitmap(screenSpace.Width, screenSpace.Height);
+            var reffImg = new Bitmap(reffImgPath);
+            Bitmap targetImg = ConvertRectangle(screenSpace);
+            var reffPixelCount = PixelCount(reffImg);
+            var targetPixelCount = PixelCount(targetImg);
 
-            //create a graphics object from the bitmap
-            using (Graphics graphics = Graphics.FromImage(_imgCache))
+            bool pixelCountCheck = false;
+
+            if (targetPixelCount >= reffPixelCount - (reffPixelCount * 0.2) && targetPixelCount <= reffPixelCount + (reffPixelCount * 0.2))
             {
-                //Capture the specified area of the screen
-                graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);
+                pixelCountCheck = true;
             }
-            //Save to file
-            _imgCache.Save(_testSavePath, System.Drawing.Imaging.ImageFormat.Png);
-        }
 
-        public bool QImgMatch(string reffPath)
-        {
-            if (reffPath.EndsWith(".png") && _capturedImgPath.EndsWith(".png"))
+            var reffPixelsPerColor = CountColours(reffImg);
+            var targetPixelsPerColor = CountColours(targetImg);
+
+            int reffColourCount = 0;
+            foreach (KeyValuePair<Color, int> Colour in reffPixelsPerColor)
             {
-                if (File.ReadAllBytes(reffPath) == File.ReadAllBytes(_capturedImgPath))
+                reffColourCount++;
+            }
+            int similarColourCount = 0;
+            foreach (KeyValuePair<Color,int> reffcolour in reffPixelsPerColor)
+            {
+                foreach (KeyValuePair<Color,int> targetcolour in targetPixelsPerColor)
                 {
-                    return true;
-                }
+                    if (reffcolour.Key == targetcolour.Key)
+                    {
+                        var reffPixelColour = reffcolour.Value;
+                        var numOfPixels2 = targetcolour.Value;
 
-                return false;
+                        if (targetcolour.Value <= (reffcolour.Value + (reffcolour.Value * 0.2)) && targetcolour.Value >= reffcolour.Value + -(reffcolour.Value * 0.2))
+                        {
+                            similarColourCount++;
+                        }
+                    }
+                }
             }
-            else throw new Exception("Wrong image type!");
+
+            bool similarColourCheck = false;
+
+            if (similarColourCount >= (reffColourCount - (reffColourCount * 0.2)) & (similarColourCount <= (reffColourCount + (reffColourCount * 0.2))))
+            {
+                similarColourCheck = true;
+            }
+
+            if (similarColourCheck && pixelCountCheck)
+            {
+                return true;
+            }
+            return false;
         }
 
         public string Read(Rectangle screenSpace)
         {
-            _imgCache = new Bitmap(screenSpace.Width, screenSpace.Height);
+            Bitmap _textExtractionImage = ConvertRectangle(screenSpace);
 
-            using (Graphics graphics = Graphics.FromImage(_imgCache))                                       //create a graphics object from the bitmap
+            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default)) 
             {
-                graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);               //Capture the specified area of the screen
-
-            }
-
-            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default))              //process bitmap into text
-            {
-                Page page = TessEngine.Process(_imgCache);
+                Page page = TessEngine.Process(_textExtractionImage);
                 string output = page.GetText().Trim().ToLower();
 
                 if (output.Length < 1)
                 {
                     return null;
                 }
-
                 return output;
             }
         }
-        public string ReadCaseSensitive(Rectangle screenSpace)
+
+        public string ReadCS(Rectangle screenSpace)
         {
-            _imgCache = new Bitmap(screenSpace.Width, screenSpace.Height);
+            Bitmap _textExtractionImage = ConvertRectangle(screenSpace);
 
-            using (Graphics graphics = Graphics.FromImage(_imgCache))                                       //create a graphics object from the bitmap
+            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default))
             {
-                graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);               //Capture the specified area of the screen
-
-            }
-
-            using (var TessEngine = new TesseractEngine(_tessDataPath, "Eng", EngineMode.Default))              //process bitmap into text
-            {
-                Page page = TessEngine.Process(_imgCache);
+                Page page = TessEngine.Process(_textExtractionImage);
                 string output = page.GetText().Trim();
 
                 if (output.Length < 1)
@@ -113,6 +133,51 @@ namespace Stormgate_Op_Db
 
                 return output;
             }
+        }
+
+        private Dictionary<Color, int> CountColours(Bitmap img)
+        {
+            var colourCount = new Dictionary<Color, int>();
+
+            for (int x = 0; x < img.Width; x++)
+            {
+                for (int y = 0; y < img.Height; y++)
+                {
+                    Color pixelColour = img.GetPixel(x, y);
+
+                    if (colourCount.ContainsKey(pixelColour))
+                    {
+                        colourCount[pixelColour]++;
+                    }
+                    else colourCount.Add(pixelColour, 1);
+                }
+            }
+            return colourCount;
+        }
+
+        private int PixelCount(Bitmap img)
+        {
+            int pixelCount = 0;
+
+            for (int x = 0; x < img.Width; x++)
+            {
+                for (int y = 0; y < img.Height; y++)
+                {
+                    pixelCount++;
+                }
+            }
+            return pixelCount;
+        }
+
+        private Bitmap ConvertRectangle(Rectangle screenSpace)
+        {
+            var bitmap = new Bitmap(screenSpace.Width, screenSpace.Height);
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.CopyFromScreen(screenSpace.Location, Point.Empty, screenSpace.Size);
+            }
+
+            return bitmap;
         }
     }
 }
